@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+  nextjs:
+    image: chau_vps_cicd
+    ports:
+      - '${PORT}:${PORT}'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
