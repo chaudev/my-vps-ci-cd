@@ -1,10 +1,17 @@
 const { exec } = require('child_process')
 const express = require('express')
 const axios = require('axios')
+const { Telegraf } = require('telegraf')
+// const TelegramBot = require('node-telegram-bot-api')
+const cron = require('node-cron')
+
 const { env } = require('process')
 
+const msoftBot = require('./MSoftBot')
+const sendTelegramMessage = require('./TelegramMess')
+
 const app = express()
-const port = env.PORT
+const port = env.PORT || 4002
 
 // Đường dẫn tới thư mục chứa repository
 const REPO_PATH_DASH = 'D:/VPS-01/docker/super-dashboad'
@@ -15,23 +22,7 @@ const GIT_PULL_ORIGIN = 'git pull origin main'
 
 app.use(express.json())
 
-// Hàm gửi tin nhắn qua API Telegram
-async function sendTelegramMessage(message) {
-	const telegramApiUrl = 'https://api.telegram.org/bot6401844894:AAFE4KoVWzhsduYi49uStCe7FglO58ZZYwc/sendMessage'
-	const chatId = '1610803211'
-
-	const telegramMessage = {
-		chat_id: chatId,
-		text: message
-	}
-
-	try {
-		await axios.post(telegramApiUrl, telegramMessage)
-		console.log('Telegram message sent successfully')
-	} catch (error) {
-		console.error('Failed to send Telegram message:', error)
-	}
-}
+msoftBot()
 
 // Hàm chính
 async function deploy(req, res) {
@@ -45,19 +36,19 @@ async function deploy(req, res) {
 		}
 
 		// Gửi thông báo qua API Telegram
-		sendTelegramMessage(`[START] - ${req?.body?.repository?.full_name}: ${command}`)
+		sendTelegramMessage('1610803211', `[START] - ${req?.body?.repository?.full_name}: ${command}`)
 
 		exec(command, async (err, stdout, stderr) => {
 			if (err) {
 				console.error('Error:', err)
 
 				// Gửi thông báo qua API Telegram
-				sendTelegramMessage(`[Failed] - ${req?.body?.repository?.full_name}: Kiểm tra lại đi`)
+				sendTelegramMessage('1610803211', `[Failed] - ${req?.body?.repository?.full_name}: Kiểm tra lại đi`)
 
 				return res.status(500).send('Something went wrong!')
 			} else {
 				// Gửi thông báo qua API Telegram
-				sendTelegramMessage(`[Done] - ${req?.body?.repository?.full_name}: Đã deploy`)
+				sendTelegramMessage('1610803211', `[Done] - ${req?.body?.repository?.full_name}: Đã deploy`)
 			}
 
 			console.log('Output:', stdout)
