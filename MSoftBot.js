@@ -3,9 +3,14 @@ const cron = require('node-cron')
 const insults = require('./insults')
 const AIMessage = require('./AIBard')
 const sendTelegramMessage = require('./TelegramMess')
+const fbThaoThao = require('./fb-thao-thao')
+const shju01 = require('./shju01')
 
 function msoftBot() {
 	const botToken = '6401844894:AAFE4KoVWzhsduYi49uStCe7FglO58ZZYwc'
+
+	const id_dongbado = '-4085091793'
+	const id_chau = '1610803211'
 
 	// Khởi tạo một bot với mã token nhận từ BotFather
 	const bot = new Telegraf(botToken)
@@ -42,6 +47,39 @@ function msoftBot() {
 		}
 	})
 
+	function randomNumber(max) {
+		return Math.floor(Math.random() * max) + 1
+	}
+
+	bot.command('hinh-be-thao', async (ctx) => {
+		if (ctx.message.chat.id != id_chau) {
+			ctx.reply('[FBI WARNING] - Con người chứ con gì mà ngắm con người ta quài vậy?')
+			return
+		}
+		try {
+			const hinhBeThao = fbThaoThao
+			ctx.replyWithPhoto({ url: hinhBeThao[randomNumber(450)] })
+		} catch (error) {
+			ctx.reply('Lỗi cmnr, thử lại đi!')
+		}
+	})
+
+	bot.command('vitamin', async (ctx, xa) => {
+		console.log('---- Nguoi yeu cau: ', ctx.from)
+
+		if (ctx.message.chat.id !== id_dongbado && ctx.message.chat.id !== '-1002128394479') {
+			ctx.reply('[FBI WARNING] - Bạn đang truy cập trái phép')
+			return
+		}
+
+		try {
+			const shju01s = shju01
+			ctx.replyWithPhoto({ url: shju01s[randomNumber(1580)] })
+		} catch (error) {
+			ctx.reply('Lỗi cmnr, thử lại đi!')
+		}
+	})
+
 	// Chửi bạn
 	bot.command('chui', async (ctx) => {
 		try {
@@ -57,7 +95,7 @@ function msoftBot() {
 	bot.command('joke', async (ctx) => {
 		try {
 			const AIRes = await AIMessage('Kể một câu chuyện cười khoảng 3 câu')
-			ctx.reply(AIRes)
+			ctx.reply(AIRes.replace(/\*/g, ''))
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
 		}
@@ -67,22 +105,33 @@ function msoftBot() {
 	bot.command('sad', async (ctx) => {
 		try {
 			const AIRes = await AIMessage('Kể một câu chuyện buồn khoảng 3 câu')
-			ctx.reply(AIRes)
+			ctx.reply(AIRes.replace(/\*/g, ''))
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
 		}
 	})
 
-	// Chửi bạn
 	bot.command('ai', async (ctx) => {
+		console.log('---- Nguoi yeu cau: ', ctx.from)
+
+		if (ctx.message.chat.id !== id_dongbado && ctx.message.chat.id !== id_chau && ctx.message.chat.id != '-1002128394479') {
+			ctx.reply('[FBI WARNING] - Bạn đang truy cập trái phép')
+			return
+		}
+
 		if (!ctx?.payload) {
 			ctx.reply('Cú pháp: /ai <NỘI DUNG CẦN HỎI>')
 			return
 		}
 
+		if (ctx?.payload.toLowerCase().includes('lấy đồ ăn') || ctx?.payload.toLowerCase().includes('lay do an')) {
+			ctx.reply('Minh nhỏ')
+			return
+		}
+
 		try {
-			const AIRes = await AIMessage(`Trả lời ngắn gọn về: ${ctx?.payload}`)
-			ctx.reply(AIRes)
+			const AIRes = await AIMessage(`Trả lời ngắn gọn bằng chữ: ${ctx?.payload}`)
+			ctx.reply(AIRes.replace(/\*/g, ''))
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
 		}
