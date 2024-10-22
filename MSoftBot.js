@@ -12,8 +12,17 @@ function msoftBot() {
 	const id_dongbado = '-4085091793'
 	const id_chau = '1610803211'
 
+	// - Khánh: 810913292
+	// - Sinh: 2062272285
+	// - Nguyên: 1354036195
+	// - Minh nhỏ: 849343168
+
 	// Khởi tạo một bot với mã token nhận từ BotFather
-	const bot = new Telegraf(botToken)
+	const bot = new Telegraf(botToken, {
+		telegram: {
+			apiRoot: 'https://api.telegram.org'
+		}
+	})
 
 	// Thay thế 'YOUR_TELEGRAM_BOT_TOKEN' bằng token của bot Telegram của bạn
 	const chatId = '-1002128394479' // Thay thế 'YOUR_CHAT_ID' bằng ID của cuộc trò chuyện bạn muốn gửi tin nhắn đến
@@ -51,7 +60,9 @@ function msoftBot() {
 		return Math.floor(Math.random() * max) + 1
 	}
 
-	bot.command('hinh-be-thao', async (ctx) => {
+	bot.command('hinh_be_thao', async (ctx) => {
+		ctx.reply('[FBI WARNING] - Con người chứ con gì mà ngắm con người ta quài vậy?')
+		return
 		if (ctx.message.chat.id != id_chau) {
 			ctx.reply('[FBI WARNING] - Con người chứ con gì mà ngắm con người ta quài vậy?')
 			return
@@ -78,6 +89,15 @@ function msoftBot() {
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
 		}
+	})
+
+	bot.command('info', async (ctx, xa) => {
+		if (ctx.from?.id != id_chau) {
+			ctx.reply('[409] - Mày không có quyền sử dụng tính năng này')
+			return
+		}
+
+		ctx.reply(`👉 User Id: ${ctx.from?.id} \n👉 Group Id: ${ctx.message.chat.id}`)
 	})
 
 	// Chửi bạn
@@ -114,10 +134,10 @@ function msoftBot() {
 	bot.command('ai', async (ctx) => {
 		console.log('---- Nguoi yeu cau: ', ctx.from)
 
-		if (ctx.message.chat.id !== id_dongbado && ctx.message.chat.id !== id_chau && ctx.message.chat.id != '-1002128394479') {
-			ctx.reply('[FBI WARNING] - Bạn đang truy cập trái phép')
-			return
-		}
+		// if (ctx.message.chat.id !== id_dongbado && ctx.message.chat.id !== id_chau && ctx.message.chat.id != '-1002128394479') {
+		// 	ctx.reply('[FBI WARNING] - Bạn đang truy cập trái phép')
+		// 	return
+		// }
 
 		if (!ctx?.payload) {
 			ctx.reply('Cú pháp: /ai <NỘI DUNG CẦN HỎI>')
