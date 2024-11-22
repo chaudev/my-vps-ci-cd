@@ -1,4 +1,5 @@
 const { Telegraf } = require('telegraf')
+const axios = require('axios')
 const cron = require('node-cron')
 const insults = require('./insults')
 const AIMessage = require('./AIBard')
@@ -27,6 +28,12 @@ function msoftBot() {
 	// Thay thế 'YOUR_TELEGRAM_BOT_TOKEN' bằng token của bot Telegram của bạn
 	const chatId = '-1002128394479' // Thay thế 'YOUR_CHAT_ID' bằng ID của cuộc trò chuyện bạn muốn gửi tin nhắn đến
 	const dongBaDo = '-4085091793'
+
+	// Lập lịch gửi tin nhắn vào mỗi 9h sáng
+	cron.schedule('0 9 30 * *', async () => {
+		const AIRes = await AIMessage('Chào buổi sáng bằng một câu ngắn gọn và hài hước!')
+		sendTelegramMessage(dongBaDo, AIRes)
+	})
 
 	// Lập lịch gửi tin nhắn vào mỗi 9h sáng
 	cron.schedule('0 9 * * *', async () => {
@@ -152,6 +159,64 @@ function msoftBot() {
 		try {
 			const AIRes = await AIMessage(`Trả lời ngắn gọn bằng chữ: ${ctx?.payload}`)
 			ctx.reply(AIRes.replace(/\*/g, ''))
+		} catch (error) {
+			ctx.reply('Lỗi cmnr, thử lại đi!')
+		}
+	})
+
+	bot.command('trade', async (ctx) => {
+		if (ctx.from?.id != id_chau) {
+			ctx.reply('[409] - Mày không có quyền sử dụng tính năng này')
+			return
+		}
+
+		try {
+			const mwg = await axios.request({
+				method: 'get',
+				maxBodyLength: Infinity,
+				url: 'https://api.simplize.vn/api/historical/quote/MWG'
+			})
+
+			const acb = await axios.request({
+				method: 'get',
+				maxBodyLength: Infinity,
+				url: 'https://api.simplize.vn/api/historical/quote/ACB'
+			})
+
+			console.log('mwg: ', mwg)
+
+			const mwgData = mwg?.data?.data
+			const acbData = acb?.data?.data
+
+			ctx.reply(`
+			Báo cáo đại nhân:\n- MWG: ${mwgData?.priceClose / 1000} (${parseFloat(mwgData?.pctChange).toFixed(1)}%)\n- ACB: ${
+				acbData?.priceClose / 1000
+			} (${parseFloat(acbData?.pctChange).toFixed(1)}%)
+			`)
+		} catch (error) {
+			ctx.reply('Lỗi cmnr, thử lại đi!')
+		}
+	})
+
+	bot.command('price', async (ctx) => {
+		if (!ctx?.payload) {
+			ctx.reply('Không biết sài thì đừng phá')
+		}
+
+		try {
+			const res = await axios.request({
+				method: 'get',
+				maxBodyLength: Infinity,
+				url: 'https://api.simplize.vn/api/historical/quote/' + ctx?.payload
+			})
+
+			const resData = res?.data?.data
+
+			ctx.reply(`
+			Báo cáo ${ctx?.payload}:\n- Hiện tại: ${resData?.priceClose / 1000} (${parseFloat(resData?.pctChange).toFixed(1)}%)\n- Trần -> Sàn: ${
+				resData?.priceFloor / 1000
+			} -> ${resData?.priceCeiling / 1000}
+			`)
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
 		}
