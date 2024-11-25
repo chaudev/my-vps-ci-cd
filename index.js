@@ -74,6 +74,8 @@ app.post('/webhook', (req, res) => {
 	deploy(req, res)
 })
 
+app.get('/', (req, res) => res.send('Express on Vercel'))
+
 app.listen(port, () => {
 	console.log(`Server listening at http://localhost:${port}`)
 })
