@@ -7,6 +7,17 @@ const sendTelegramMessage = require('./TelegramMess')
 const fbThaoThao = require('./fb-thao-thao')
 const shju01 = require('./shju01')
 
+function getDaysUntilTargetDate() {
+	const today = new Date() // Ngày hiện tại
+	const targetDate = new Date('2025-01-29') // Ngày mục tiêu
+
+	// Tính số ngày còn lại
+	const differenceInTime = targetDate - today
+	const daysRemaining = Math.ceil(differenceInTime / (1000 * 60 * 60 * 24))
+
+	return daysRemaining > 0 ? daysRemaining : 0 // Đảm bảo không trả giá trị âm
+}
+
 function msoftBot() {
 	const botToken = '6401844894:AAFE4KoVWzhsduYi49uStCe7FglO58ZZYwc'
 
@@ -30,12 +41,6 @@ function msoftBot() {
 	const dongBaDo = '-4085091793'
 
 	// Lập lịch gửi tin nhắn vào mỗi 9h sáng
-	cron.schedule('0 9 30 * *', async () => {
-		const AIRes = await AIMessage('Chào buổi sáng bằng một câu ngắn gọn và hài hước!')
-		sendTelegramMessage(dongBaDo, AIRes)
-	})
-
-	// Lập lịch gửi tin nhắn vào mỗi 9h sáng
 	cron.schedule('0 9 * * *', async () => {
 		const AIRes = await AIMessage('Chào buổi sáng bằng một câu ngắn gọn và hài hước!')
 		sendTelegramMessage(dongBaDo, AIRes)
@@ -43,7 +48,13 @@ function msoftBot() {
 
 	// Lập lịch gửi tin nhắn vào mỗi ngày lúc 18 giờ
 	cron.schedule('0 18 * * *', async () => {
-		const AIRes = await AIMessage('1 câu tạm biệt mọi người ngắn gọn và hài hước sau giờ làm')
+		const leftDays = getDaysUntilTargetDate()
+
+		const AIRes = await AIMessage(
+			`Còn ${
+				leftDays - 1
+			} ngày làm việc nữa là được nghỉ tết. Nói 1 câu tạm biệt mọi người ngắn gọn và hài hước sau giờ làm. Đưa số ngày còn lại vào 1 cách hài hước, giọng văn kiểu tới ngày đó sẽ được giải thoát.`
+		)
 		sendTelegramMessage(dongBaDo, AIRes)
 	})
 
@@ -141,11 +152,6 @@ function msoftBot() {
 	bot.command('ai', async (ctx) => {
 		console.log('---- Nguoi yeu cau: ', ctx.from)
 
-		// if (ctx.message.chat.id !== id_dongbado && ctx.message.chat.id !== id_chau && ctx.message.chat.id != '-1002128394479') {
-		// 	ctx.reply('[FBI WARNING] - Bạn đang truy cập trái phép')
-		// 	return
-		// }
-
 		if (!ctx?.payload) {
 			ctx.reply('Cú pháp: /ai <NỘI DUNG CẦN HỎI>')
 			return
@@ -219,6 +225,28 @@ function msoftBot() {
 			`)
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
+		}
+	})
+
+	bot.command('makeMinhSad', async (ctx) => {
+		for (let i = 0; i < 100; i++) {
+			try {
+				let temp = null
+				await fetch('https://log.monamedia.net/Home/GetData?PageIndex=1&PageSize=9999&DomainId=0', {
+					method: 'GET',
+					redirect: 'follow'
+				})
+					.then((response) => response.text())
+					.then((result) => {
+						temp = JSON.parse(result)?.data
+					})
+					.catch((error) => console.error(error))
+				console.log(temp)
+				ctx.reply(`Lần thứ: ${i + 1}`)
+			} catch (error) {
+				console.log('---> error: ', error)
+				ctx.reply(`Lỗi ở lần thứ: ${i + 1}`)
+			}
 		}
 	})
 
