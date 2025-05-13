@@ -48,19 +48,13 @@ function msoftBot() {
 
 	// Lập lịch gửi tin nhắn vào mỗi ngày lúc 18 giờ
 	cron.schedule('0 18 * * *', async () => {
-		const leftDays = getDaysUntilTargetDate()
-
-		const AIRes = await AIMessage(
-			`Còn ${
-				leftDays - 1
-			} ngày làm việc nữa là được nghỉ tết. Nói 1 câu tạm biệt mọi người ngắn gọn và hài hước sau giờ làm. Đưa số ngày còn lại vào 1 cách hài hước, giọng văn kiểu tới ngày đó sẽ được giải thoát.`
-		)
+		const AIRes = await AIMessage(`Đã hết giờ làm. Nói 1 câu tạm biệt mọi người ngắn gọn và hài hước, phong cách mất dạy.`)
 		sendTelegramMessage(dongBaDo, AIRes)
 	})
 
 	// Lập lịch gửi tin nhắn vào mỗi ngày lúc 18 giờ
 	cron.schedule('0 12 * * *', async () => {
-		const AIRes = await AIMessage('Đã tới giờ đi ăn, gọi mọi người đi ăn bằng 1 câu ngắn gọn')
+		const AIRes = await AIMessage('Đã tới giờ đi ăn, gọi mọi người đi ăn bằng 1 câu ngắn gọn, phong cách mất dạy')
 		sendTelegramMessage(dongBaDo, AIRes)
 	})
 
@@ -157,13 +151,8 @@ function msoftBot() {
 			return
 		}
 
-		if (ctx?.payload.toLowerCase().includes('lấy đồ ăn') || ctx?.payload.toLowerCase().includes('lay do an')) {
-			ctx.reply('Minh nhỏ')
-			return
-		}
-
 		try {
-			const AIRes = await AIMessage(`Trả lời ngắn gọn bằng chữ: ${ctx?.payload}`)
+			const AIRes = await AIMessage(`Trả lời bằng chữ, ngắn gọn, phong cách mất dạy: ${ctx?.payload}`)
 			ctx.reply(AIRes.replace(/\*/g, ''))
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
@@ -183,21 +172,28 @@ function msoftBot() {
 				url: 'https://api.simplize.vn/api/historical/quote/MWG'
 			})
 
-			const acb = await axios.request({
+			const vic = await axios.request({
 				method: 'get',
 				maxBodyLength: Infinity,
-				url: 'https://api.simplize.vn/api/historical/quote/ACB'
+				url: 'https://api.simplize.vn/api/historical/quote/VIC'
 			})
 
-			console.log('mwg: ', mwg)
+			const vcb = await axios.request({
+				method: 'get',
+				maxBodyLength: Infinity,
+				url: 'https://api.simplize.vn/api/historical/quote/VCB'
+			})
 
 			const mwgData = mwg?.data?.data
-			const acbData = acb?.data?.data
+			const vicData = vic?.data?.data
+			const vcbData = vcb?.data?.data
 
 			ctx.reply(`
-			Báo cáo đại nhân:\n- MWG: ${mwgData?.priceClose / 1000} (${parseFloat(mwgData?.pctChange).toFixed(1)}%)\n- ACB: ${
-				acbData?.priceClose / 1000
-			} (${parseFloat(acbData?.pctChange).toFixed(1)}%)
+			Báo cáo đại nhân:\n- MWG: ${mwgData?.priceClose / 1000} (${parseFloat(mwgData?.pctChange).toFixed(1)}%)\n- VIC: ${
+				vicData?.priceClose / 1000
+			} (${parseFloat(vicData?.pctChange).toFixed(1)}%)\n- VCB: ${vcbData?.priceClose / 1000} (${parseFloat(vcbData?.pctChange).toFixed(
+				1
+			)}%)
 			`)
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')

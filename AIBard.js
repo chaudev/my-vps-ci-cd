@@ -5,11 +5,9 @@ const genAI = new GoogleGenerativeAI('AIzaSyCz4ZKI77J-MyX1GALoS9RQl-2u1Zjk78U')
 
 async function AIMessage(message) {
 	try {
-		// For text-only input, use the gemini-pro model
-		const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
 		const prompt = message
-
 		const result = await model.generateContent(prompt)
 		const response = await result.response
 		const text = response.text()
