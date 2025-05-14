@@ -189,11 +189,7 @@ function msoftBot() {
 			const vcbData = vcb?.data?.data
 
 			ctx.reply(`
-			Báo cáo đại nhân:\n- MWG: ${mwgData?.priceClose / 1000} (${parseFloat(mwgData?.pctChange).toFixed(1)}%)\n- VIC: ${
-				vicData?.priceClose / 1000
-			} (${parseFloat(vicData?.pctChange).toFixed(1)}%)\n- VCB: ${vcbData?.priceClose / 1000} (${parseFloat(vcbData?.pctChange).toFixed(
-				1
-			)}%)
+				Báo cáo đại nhân:\n${getRenderItem('MWG', mwgData)}\n${getRenderItem('VIC', vicData)}\n${getRenderItem('VCB', vcbData)}
 			`)
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
@@ -214,16 +210,20 @@ function msoftBot() {
 
 			const resData = res?.data?.data
 
+			console.log('----> resData: ', resData)
+
 			ctx.reply(`
-			Báo cáo ${ctx?.payload}:\n- Hiện tại: ${resData?.priceClose / 1000} (${parseFloat(resData?.pctChange).toFixed(1)}%)\n- Trần -> Sàn: ${
-				resData?.priceFloor / 1000
-			} -> ${resData?.priceCeiling / 1000}
+			${getStatusColor(resData)} ${ctx?.payload}:\n- Hiện tại: ${resData?.priceClose / 1000} (${resData?.pctChange < 0 ? '' : '+'}${parseFloat(
+				resData?.pctChange
+			).toFixed(1)}%)\n- Đầu phiên: ${resData?.priceOpen / 1000}\n- Cuối phiên: ${resData?.priceClose / 1000}\n- Trần: ${
+				resData?.priceCeiling / 1000
+			}\n- Sàn: ${resData?.priceFloor / 1000}
 			`)
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
 		}
 	})
-
+	// priceOpen
 	bot.command('makeMinhSad', async (ctx) => {
 		for (let i = 0; i < 100; i++) {
 			try {
@@ -251,3 +251,12 @@ function msoftBot() {
 }
 
 module.exports = msoftBot
+
+function getStatusColor(params) {
+	return params?.pctChange < 0 ? '🔴' : '🟢'
+}
+
+function getRenderItem(code, params) {
+	const status = params?.pctChange < 0 ? '-' : ''
+	return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(1)}%) ${getStatusColor(params)}`
+}
