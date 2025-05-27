@@ -283,7 +283,7 @@ function calculateProfitOrLoss(buyPrice, sellPrice) {
 function getRenderItem(code, params, buy = 0) {
 	const status = params?.pctChange < 0 ? '' : '+'
 
-	const priceChangePercent = calculateProfitOrLoss(buy, params?.priceClose)
+	const priceChangePercent = calculateProfitOrLoss(buy, parseFloat(params?.priceClose) / 1000).toFixed(1)
 
 	if (buy > 0) {
 		return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(
