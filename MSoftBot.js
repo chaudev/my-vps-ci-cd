@@ -200,7 +200,7 @@ function msoftBot() {
 				vnz: 371,
 				vcb: 64.7,
 				fpt: 119.2,
-				vnd: 16.3
+				vnd: 16.4
 			}
 
 			ctx.reply(`
