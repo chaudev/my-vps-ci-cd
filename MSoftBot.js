@@ -196,11 +196,19 @@ function msoftBot() {
 			const vcbData = vcb?.data?.data
 			const vndData = vnd?.data?.data
 
+			const buyData = {
+				vnz: 371,
+				vcb: 64.7,
+				fpt: 119.2,
+				vnd: 16.3
+			}
+
 			ctx.reply(`
-				Báo cáo đại nhân:\n${getRenderItem('MWG', mwgData)}\n${getRenderItem('VNZ', vnzData)}\n${getRenderItem('VCB', vcbData)}\n${getRenderItem(
-				'VND',
-				vndData
-			)}
+				Báo cáo đại nhân:\n${getRenderItem('MWG', mwgData)}\n${getRenderItem('VNZ', vnzData, buyData.vnz)}\n${getRenderItem(
+				'VCB',
+				vcbData,
+				buyData.vcb
+			)}\n${getRenderItem('VND', vndData, buyData.vnd)}
 			`)
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
@@ -258,7 +266,15 @@ function getStatusColor(params) {
 	return params?.pctChange < 0 ? '🔴' : '🟢'
 }
 
-function getRenderItem(code, params) {
+function getRenderItem(code, params, buy = 0) {
 	const status = params?.pctChange < 0 ? '' : '+'
+	const priceChange = params?.priceClose - buy
+	const priceChangePercent = (priceChange / buy) * 100
+
+	if (buy > 0) {
+		return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(
+			1
+		)}%) | Tổng: ${priceChangePercent} (${getStatusColor(params)})`
+	}
 	return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(1)}%) ${getStatusColor(params)}`
 }
