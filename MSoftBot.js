@@ -288,9 +288,10 @@ function getRenderItem(code, params, buy = 0) {
 	const priceChangePercent = calculateProfitOrLoss(parseFloat(buy), parseFloat(params?.priceClose / 1000).toFixed(1))
 
 	if (buy > 0) {
-		return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(
-			1
-		)}%) | Tổng: ${priceChangePercent} (${getStatusColor(params)})`
+		return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(1)}%) (${getStatusColor(
+			params
+		)}) | KQ: ${priceChangePercent}%`
 	}
+
 	return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(1)}%) ${getStatusColor(params)}`
 }
