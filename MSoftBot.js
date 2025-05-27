@@ -267,6 +267,8 @@ function getStatusColor(params) {
 }
 
 function calculateProfitOrLoss(buyPrice, sellPrice) {
+	console.log('----> buyPrice: ', buyPrice, ' sellPrice: ', sellPrice)
+
 	if (typeof buyPrice !== 'number' || typeof sellPrice !== 'number' || buyPrice <= 0) {
 		return ''
 	}
