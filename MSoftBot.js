@@ -266,10 +266,24 @@ function getStatusColor(params) {
 	return params?.pctChange < 0 ? '🔴' : '🟢'
 }
 
+function calculateProfitOrLoss(buyPrice, sellPrice) {
+	if (typeof buyPrice !== 'number' || typeof sellPrice !== 'number' || buyPrice <= 0) {
+		return ''
+	}
+
+	const difference = sellPrice - buyPrice
+	const percentage = (difference / buyPrice) * 100
+
+	// Làm tròn đến 2 chữ số thập phân
+	const rounded = Math.round(percentage * 100) / 100
+
+	return rounded // số dương nếu lời, số âm nếu lỗ
+}
+
 function getRenderItem(code, params, buy = 0) {
 	const status = params?.pctChange < 0 ? '' : '+'
-	const priceChange = params?.priceClose - buy
-	const priceChangePercent = (priceChange / buy) * 100
+
+	const priceChangePercent = calculateProfitOrLoss(buy, params?.priceClose)
 
 	if (buy > 0) {
 		return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(
