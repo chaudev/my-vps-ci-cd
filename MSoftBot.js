@@ -6,6 +6,7 @@ const AIMessage = require('./AIBard')
 const sendTelegramMessage = require('./TelegramMess')
 const fbThaoThao = require('./fb-thao-thao')
 const shju01 = require('./shju01')
+const handlePrice = require('./TradeBot')
 
 function getDaysUntilTargetDate() {
 	const today = new Date() // Ngày hiện tại
@@ -42,7 +43,7 @@ function msoftBot() {
 
 	// Lập lịch gửi tin nhắn vào mỗi 9h sáng
 	cron.schedule('0 9 * * *', async () => {
-		const AIRes = await AIMessage('Chào buổi sáng bằng một câu ngắn gọn và hài hước!')
+		const AIRes = await AIMessage('Chào buổi sáng bằng một câu ngắn gọn, phong cách mất dạy')
 		sendTelegramMessage(dongBaDo, AIRes)
 	})
 
@@ -172,10 +173,10 @@ function msoftBot() {
 				url: 'https://api.simplize.vn/api/historical/quote/MWG'
 			})
 
-			const vic = await axios.request({
+			const vnz = await axios.request({
 				method: 'get',
 				maxBodyLength: Infinity,
-				url: 'https://api.simplize.vn/api/historical/quote/VIC'
+				url: 'https://api.simplize.vn/api/historical/quote/VNZ'
 			})
 
 			const vcb = await axios.request({
@@ -185,11 +186,48 @@ function msoftBot() {
 			})
 
 			const mwgData = mwg?.data?.data
-			const vicData = vic?.data?.data
+			const vnzData = vnz?.data?.data
 			const vcbData = vcb?.data?.data
 
 			ctx.reply(`
-				Báo cáo đại nhân:\n${getRenderItem('MWG', mwgData)}\n${getRenderItem('VIC', vicData)}\n${getRenderItem('VCB', vcbData)}
+				Báo cáo đại nhân:\n${getRenderItem('MWG', mwgData)}\n${getRenderItem('VNZ', vnzData)}\n${getRenderItem('VCB', vcbData)}
+			`)
+		} catch (error) {
+			ctx.reply('Lỗi cmnr, thử lại đi!')
+		}
+	})
+
+	bot.command('vin', async (ctx) => {
+		if (ctx.from?.id != id_chau) {
+			ctx.reply('[409] - Mày không có quyền sử dụng tính năng này')
+			return
+		}
+
+		try {
+			const vhm = await axios.request({
+				method: 'get',
+				maxBodyLength: Infinity,
+				url: 'https://api.simplize.vn/api/historical/quote/VHM'
+			})
+
+			const vic = await axios.request({
+				method: 'get',
+				maxBodyLength: Infinity,
+				url: 'https://api.simplize.vn/api/historical/quote/VIC'
+			})
+
+			const vpl = await axios.request({
+				method: 'get',
+				maxBodyLength: Infinity,
+				url: 'https://api.simplize.vn/api/historical/quote/VPL'
+			})
+
+			const vhmData = vhm?.data?.data
+			const vicData = vic?.data?.data
+			const vplData = vpl?.data?.data
+
+			ctx.reply(`
+				Nhà VIN hiện tại:\n${getRenderItem('VIC', vicData)}\n${getRenderItem('VHM', vhmData)}\n${getRenderItem('VPL', vplData)}
 			`)
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
@@ -197,53 +235,7 @@ function msoftBot() {
 	})
 
 	bot.command('price', async (ctx) => {
-		if (!ctx?.payload) {
-			ctx.reply('Không biết sài thì đừng phá')
-		}
-
-		try {
-			const res = await axios.request({
-				method: 'get',
-				maxBodyLength: Infinity,
-				url: 'https://api.simplize.vn/api/historical/quote/' + ctx?.payload
-			})
-
-			const resData = res?.data?.data
-
-			console.log('----> resData: ', resData)
-
-			ctx.reply(`
-			${getStatusColor(resData)} ${ctx?.payload}:\n- Hiện tại: ${resData?.priceClose / 1000} (${resData?.pctChange < 0 ? '' : '+'}${parseFloat(
-				resData?.pctChange
-			).toFixed(1)}%)\n- Đầu phiên: ${resData?.priceOpen / 1000}\n- Cuối phiên: ${resData?.priceClose / 1000}\n- Trần: ${
-				resData?.priceCeiling / 1000
-			}\n- Sàn: ${resData?.priceFloor / 1000}
-			`)
-		} catch (error) {
-			ctx.reply('Lỗi cmnr, thử lại đi!')
-		}
-	})
-	// priceOpen
-	bot.command('makeMinhSad', async (ctx) => {
-		for (let i = 0; i < 100; i++) {
-			try {
-				let temp = null
-				await fetch('https://log.monamedia.net/Home/GetData?PageIndex=1&PageSize=9999&DomainId=0', {
-					method: 'GET',
-					redirect: 'follow'
-				})
-					.then((response) => response.text())
-					.then((result) => {
-						temp = JSON.parse(result)?.data
-					})
-					.catch((error) => console.error(error))
-				console.log(temp)
-				ctx.reply(`Lần thứ: ${i + 1}`)
-			} catch (error) {
-				console.log('---> error: ', error)
-				ctx.reply(`Lỗi ở lần thứ: ${i + 1}`)
-			}
-		}
+		handlePrice(ctx)
 	})
 
 	// Khởi động bot
@@ -257,6 +249,6 @@ function getStatusColor(params) {
 }
 
 function getRenderItem(code, params) {
-	const status = params?.pctChange < 0 ? '-' : ''
+	const status = params?.pctChange < 0 ? '' : '+'
 	return `- ${code}: ${params?.priceClose / 1000} (${status}${parseFloat(params?.pctChange).toFixed(1)}%) ${getStatusColor(params)}`
 }
