@@ -185,12 +185,22 @@ function msoftBot() {
 				url: 'https://api.simplize.vn/api/historical/quote/VCB'
 			})
 
+			const vnd = await axios.request({
+				method: 'get',
+				maxBodyLength: Infinity,
+				url: 'https://api.simplize.vn/api/historical/quote/VND'
+			})
+
 			const mwgData = mwg?.data?.data
 			const vnzData = vnz?.data?.data
 			const vcbData = vcb?.data?.data
+			const vndData = vnd?.data?.data
 
 			ctx.reply(`
-				Báo cáo đại nhân:\n${getRenderItem('MWG', mwgData)}\n${getRenderItem('VNZ', vnzData)}\n${getRenderItem('VCB', vcbData)}
+				Báo cáo đại nhân:\n${getRenderItem('MWG', mwgData)}\n${getRenderItem('VNZ', vnzData)}\n${getRenderItem('VCB', vcbData)}\n${getRenderItem(
+				'VND',
+				vndData
+			)}
 			`)
 		} catch (error) {
 			ctx.reply('Lỗi cmnr, thử lại đi!')
